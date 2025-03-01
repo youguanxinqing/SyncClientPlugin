@@ -13,6 +13,8 @@ repositories {
 dependencies {
     implementation 'com.moandjiezana.toml:toml4j:0.7.2'
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.20"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.8.20"
 }
 
 intellij {

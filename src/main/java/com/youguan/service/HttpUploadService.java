@@ -4,18 +4,39 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.moandjiezana.toml.Toml;
+import com.youguan.config.ClientConfig;
 import okhttp3.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import javax.net.ssl.*;
+import java.security.cert.X509Certificate;
+
+import okhttp3.OkHttpClient;
+import javax.net.ssl.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.concurrent.TimeUnit;
 
 public class HttpUploadService {
     private static final Logger LOG = Logger.getInstance(HttpUploadService.class);
     private static final MediaType MEDIA_TYPE_AUTO = MediaType.parse("application/octet-stream");
-    private static final OkHttpClient client = new OkHttpClient();
+    private final ClientConfig clientConfig;
+    private final OkHttpClient client;
 
-    public static UploadResult uploadFile(String serverAddr, VirtualFile file, String projectBasePath, String targetRootDir, String protocol) throws IOException {
+    public HttpUploadService(ClientConfig clientConfig) {
+        this.clientConfig = clientConfig;
+        this.client = OkHttpClientUtils.createTrustAllClient()
+                .connectTimeout(clientConfig.getTimeout(), TimeUnit.SECONDS)
+                .writeTimeout(clientConfig.getTimeout(), TimeUnit.SECONDS)
+                .readTimeout(clientConfig.getTimeout(), TimeUnit.SECONDS)
+                .build();
+    }
+
+    public UploadResult uploadFile(String serverAddr, VirtualFile file, String projectBasePath, String targetRootDir) throws IOException {
         byte[] fileContent = ReadAction.compute(() -> {
             try {
                 return file.contentsToByteArray();
@@ -41,19 +62,23 @@ public class HttpUploadService {
                 .build();
 
         Request request = new Request.Builder()
-                .url(protocol + "://" + serverAddr)
+                .url(clientConfig.getProtocol() + "://" + serverAddr)
                 .post(requestBody)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            String responseBody = "";
+            String responseBody = "null";
             if (response.body() != null) {
-                responseBody = new String(response.body().bytes(), StandardCharsets.UTF_8);
+                if (response.body().contentLength() > 1024) {
+                    responseBody = new String(Arrays.copyOfRange(response.body().bytes(), 0, 1024), StandardCharsets.UTF_8);
+                } else {
+                    responseBody = new String(response.body().bytes(), StandardCharsets.UTF_8);
+                }
             }
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected response code: " + response);
             }
-            
+
             return new UploadResult(
                 targetFilePath,
                 response.code(),
@@ -82,4 +107,43 @@ public class HttpUploadService {
                 targetPath, responseCode, responseBody);
         }
     }
-} 
+}
+
+class OkHttpClientUtils {
+    public static OkHttpClient.Builder createTrustAllClient() {
+        try {
+            // 创建信任所有证书的信任管理器
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[]{};
+                    }
+                }
+            };
+
+            // 安装信任管理器
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            
+            // 创建 SSL socket 工厂
+            final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+            builder.hostnameVerifier((hostname, session) -> true);
+
+            return builder;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create OkHttpClient", e);
+        }
+    }
+}

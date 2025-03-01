@@ -11,6 +11,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.youguan.config.ClientConfig;
 import com.youguan.config.ServerConfig;
 import com.youguan.service.HttpUploadService;
 import com.moandjiezana.toml.Toml;
@@ -20,13 +21,13 @@ import com.youguan.service.HttpUploadService.UploadResult;
 public class ServerUploadAction extends AnAction {
     private final ServerConfig serverConfig;
     private final String targetRootDir;
-    private final String protocol;
+    private final ClientConfig clientConfig;
 
-    public ServerUploadAction(ServerConfig serverConfig, String targetRootDir, String protocol) {
+    public ServerUploadAction(ServerConfig serverConfig, String targetRootDir, ClientConfig clientConfig) {
         super(serverConfig.getName());
         this.serverConfig = serverConfig;
         this.targetRootDir = targetRootDir;
-        this.protocol = protocol;
+        this.clientConfig = clientConfig;
     }
 
     @Override
@@ -44,12 +45,11 @@ public class ServerUploadAction extends AnAction {
                     indicator.setIndeterminate(true);
                     indicator.setText("Uploading " + file.getName() + " to " + serverConfig.getName());
                     
-                    UploadResult result = HttpUploadService.uploadFile(
+                    UploadResult result = new HttpUploadService(clientConfig).uploadFile(
                         serverConfig.getAddr(),
                         file,
                         e.getProject().getBasePath(),
-                        targetRootDir,
-                        protocol
+                        targetRootDir
                     );
 
                     ApplicationManager.getApplication().invokeLater(() -> {

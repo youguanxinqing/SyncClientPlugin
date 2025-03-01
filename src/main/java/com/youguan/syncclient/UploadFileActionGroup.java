@@ -2,6 +2,7 @@ package com.youguan.syncclient;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.project.Project;
+import com.youguan.config.ClientConfig;
 import com.youguan.config.ConfigManager;
 import com.youguan.config.ServerConfig;
 import com.youguan.syncclient.ServerUploadAction;
@@ -35,9 +36,9 @@ public class UploadFileActionGroup extends ActionGroup {
 
             // 在 getChildren 方法中修改创建 ServerUploadAction 的部分
             String targetRootDir = toml.getString("remote.target_root_dir");
-            String protocol = toml.getString("client.protocol", "http");
+            ClientConfig clientConfig = new ClientConfig(toml);
             return servers.stream()
-                .map(server -> new ServerUploadAction(server, targetRootDir, protocol))
+                .map(server -> new ServerUploadAction(server, targetRootDir, clientConfig))
                 .toArray(AnAction[]::new);
 
         } catch (Exception ex) {
