@@ -1,15 +1,16 @@
 package com.youguan.syncclient;
 
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.moandjiezana.toml.Toml;
 import com.youguan.config.ClientConfig;
 import com.youguan.config.ConfigManager;
 import com.youguan.config.ServerConfig;
-import com.youguan.syncclient.ServerUploadAction;
-import com.moandjiezana.toml.Toml;
-import java.io.File;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class UploadFileActionGroup extends ActionGroup {
     @Override
@@ -23,14 +24,14 @@ public class UploadFileActionGroup extends ActionGroup {
             String configContent = ConfigManager.readConfig(project);
             Toml toml = new Toml().read(configContent);
             List<ServerConfig> servers = new ArrayList<>();
-            
+
             // 解析 TOML 配置中的 servers
             List<Toml> serverConfigs = toml.getTables("remote.servers");
             for (Toml serverConfig : serverConfigs) {
                 ServerConfig server = new ServerConfig();
                 server.setName(serverConfig.getString("name"));
                 server.setAddr(serverConfig.getString("addr"));
-                server.setHost(serverConfig.getString("host"));
+                server.setHost(serverConfig.getString("host", ""));
                 servers.add(server);
             }
 
@@ -38,8 +39,8 @@ public class UploadFileActionGroup extends ActionGroup {
             String targetRootDir = toml.getString("remote.target_root_dir");
             ClientConfig clientConfig = new ClientConfig(toml);
             return servers.stream()
-                .map(server -> new ServerUploadAction(server, targetRootDir, clientConfig))
-                .toArray(AnAction[]::new);
+                    .map(serverConfig -> new ServerUploadAction(serverConfig, targetRootDir, clientConfig))
+                    .toArray(AnAction[]::new);
 
         } catch (Exception ex) {
             return new AnAction[]{new ErrorAction(ex.getMessage())};

@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.moandjiezana.toml.Toml;
 import com.youguan.config.ClientConfig;
+import com.youguan.config.ServerConfig;
 import okhttp3.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +37,7 @@ public class HttpUploadService {
                 .build();
     }
 
-    public UploadResult uploadFile(String serverAddr, VirtualFile file, String projectBasePath, String targetRootDir) throws IOException {
+    public UploadResult uploadFile(ServerConfig serverConfig, VirtualFile file, String projectBasePath, String targetRootDir) throws IOException {
         byte[] fileContent = ReadAction.compute(() -> {
             try {
                 return file.contentsToByteArray();
@@ -62,7 +63,8 @@ public class HttpUploadService {
                 .build();
 
         Request request = new Request.Builder()
-                .url(clientConfig.getProtocol() + "://" + serverAddr)
+                .url(String.format("%s://%s", clientConfig.getProtocol(), serverConfig.getAddr()))
+                .addHeader("Host", serverConfig.getHost().isEmpty() ? serverConfig.getAddr() : serverConfig.getHost())
                 .post(requestBody)
                 .build();
 

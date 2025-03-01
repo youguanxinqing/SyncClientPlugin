@@ -14,9 +14,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.youguan.config.ClientConfig;
 import com.youguan.config.ServerConfig;
 import com.youguan.service.HttpUploadService;
-import com.moandjiezana.toml.Toml;
-import org.jetbrains.annotations.NotNull;
 import com.youguan.service.HttpUploadService.UploadResult;
+import org.jetbrains.annotations.NotNull;
 
 public class ServerUploadAction extends AnAction {
     private final ServerConfig serverConfig;
@@ -48,23 +47,23 @@ public class ServerUploadAction extends AnAction {
                 try {
                     indicator.setIndeterminate(true);
                     indicator.setText("Uploading " + file.getName() + " to " + serverConfig.getName());
-                    
+
                     UploadResult result = new HttpUploadService(clientConfig).uploadFile(
-                        serverConfig.getAddr(),
-                        file,
-                        e.getProject().getBasePath(),
-                        targetRootDir
+                            serverConfig,
+                            file,
+                            e.getProject().getBasePath(),
+                            targetRootDir
                     );
 
                     ApplicationManager.getApplication().invokeLater(() -> {
                         NotificationGroupManager.getInstance()
-                            .getNotificationGroup("SyncClient Upload")
-                            .createNotification(
-                                "Upload Success",
-                                result.toString(),
-                                NotificationType.INFORMATION
-                            )
-                            .notify(e.getProject());
+                                .getNotificationGroup("SyncClient Upload")
+                                .createNotification(
+                                        "Upload Success",
+                                        result.toString(),
+                                        NotificationType.INFORMATION
+                                )
+                                .notify(e.getProject());
                     });
                 } catch (Exception ex) {
                     final String errorMessage = String.format("""
@@ -72,13 +71,13 @@ public class ServerUploadAction extends AnAction {
                             失败原因: %s""", file.getPath(), ex.getMessage());
                     ApplicationManager.getApplication().invokeLater(() -> {
                         NotificationGroupManager.getInstance()
-                            .getNotificationGroup("SyncClient Upload")
-                            .createNotification(
-                                "Upload Failed",
-                                errorMessage,
-                                NotificationType.ERROR
-                            )
-                            .notify(e.getProject());
+                                .getNotificationGroup("SyncClient Upload")
+                                .createNotification(
+                                        "Upload Failed",
+                                        errorMessage,
+                                        NotificationType.ERROR
+                                )
+                                .notify(e.getProject());
                     });
                 }
             }
