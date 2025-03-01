@@ -25,4 +25,9 @@ intellij {
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
-} 
+}
+
+patchPluginXml {
+    sinceBuild = '231'
+    untilBuild = '243.*'
+}
