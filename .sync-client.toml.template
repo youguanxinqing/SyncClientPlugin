@@ -1,0 +1,10 @@
+# SyncClient Configuration File
+
+[client]
+timeout = 30 # 秒
+
+[remote]
+target_root_dir = "path-to-your-root-dir"
+servers = [
+    {name = "alia name2", addr = "host:port", host = "replace-host-if-need"},
+]
