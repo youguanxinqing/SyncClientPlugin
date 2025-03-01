@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.moandjiezana.toml.Toml;
 import okhttp3.*;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -14,7 +15,7 @@ public class HttpUploadService {
     private static final MediaType MEDIA_TYPE_AUTO = MediaType.parse("application/octet-stream");
     private static final OkHttpClient client = new OkHttpClient();
 
-    public static UploadResult uploadFile(String serverAddr, VirtualFile file, String projectBasePath, String targetRootDir) throws IOException {
+    public static UploadResult uploadFile(String serverAddr, VirtualFile file, String projectBasePath, String targetRootDir, String protocol) throws IOException {
         byte[] fileContent = ReadAction.compute(() -> {
             try {
                 return file.contentsToByteArray();
@@ -40,12 +41,15 @@ public class HttpUploadService {
                 .build();
 
         Request request = new Request.Builder()
-                .url("http://" + serverAddr)
+                .url(protocol + "://" + serverAddr)
                 .post(requestBody)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            String responseBody = response.body() != null ? response.body().string() : "";
+            String responseBody = "";
+            if (response.body() != null) {
+                responseBody = new String(response.body().bytes(), StandardCharsets.UTF_8);
+            }
             if (!response.isSuccessful()) {
                 throw new IOException("Unexpected response code: " + response);
             }

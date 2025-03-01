@@ -30,7 +30,7 @@
      </extensions>
 
     <actions>
-        <group id="SyncClient.UploadFileGroup" 
+        <group id="SyncClientPlugin.UploadFileGroup"
                class="com.youguan.syncclient.UploadFileActionGroup"
                text="UploadFile" 
                popup="true">

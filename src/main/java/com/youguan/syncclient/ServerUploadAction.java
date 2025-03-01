@@ -20,11 +20,13 @@ import com.youguan.service.HttpUploadService.UploadResult;
 public class ServerUploadAction extends AnAction {
     private final ServerConfig serverConfig;
     private final String targetRootDir;
+    private final String protocol;
 
-    public ServerUploadAction(ServerConfig serverConfig, String targetRootDir) {
+    public ServerUploadAction(ServerConfig serverConfig, String targetRootDir, String protocol) {
         super(serverConfig.getName());
         this.serverConfig = serverConfig;
         this.targetRootDir = targetRootDir;
+        this.protocol = protocol;
     }
 
     @Override
@@ -46,7 +48,8 @@ public class ServerUploadAction extends AnAction {
                         serverConfig.getAddr(),
                         file,
                         e.getProject().getBasePath(),
-                        targetRootDir
+                        targetRootDir,
+                        protocol
                     );
 
                     ApplicationManager.getApplication().invokeLater(() -> {

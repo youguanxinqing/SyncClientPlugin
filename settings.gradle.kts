@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "SyncClient"
+rootProject.name = "SyncClientPlugin"

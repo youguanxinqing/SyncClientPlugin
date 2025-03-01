@@ -3,7 +3,7 @@ plugins {
     id 'org.jetbrains.intellij' version '1.17.1'
 }
 
-group 'com.your.package'
+group 'com.youguan.syncclient'
 version '1.0-SNAPSHOT'
 
 repositories {
