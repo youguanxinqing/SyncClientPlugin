@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="43874597-bc92-4e5f-b87f-6811f4b4f2cc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/youguan/service/SSLUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/youguan/service/HttpUploadService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/youguan/service/HttpUploadService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/youguan/syncclient/ServerUploadAction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/youguan/syncclient/ServerUploadAction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/youguan/syncclient/UploadFileActionGroup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/youguan/syncclient/UploadFileActionGroup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,7 +155,7 @@
       <updated>1740764497748</updated>
       <workItem from="1740764498819" duration="18201000" />
       <workItem from="1740796276951" duration="88000" />
-      <workItem from="1740796374897" duration="4713000" />
+      <workItem from="1740796374897" duration="5946000" />
     </task>
     <servers />
   </component>

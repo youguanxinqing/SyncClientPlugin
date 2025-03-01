@@ -37,6 +37,10 @@ public class ServerUploadAction extends AnAction {
             Messages.showErrorDialog("No file selected", "Error");
             return;
         }
+        if (file.isDirectory()) {
+            Messages.showErrorDialog("Not support directory", "Error");
+            return;
+        }
 
         ProgressManager.getInstance().run(new Task.Backgroundable(e.getProject(), "Uploading File") {
             @Override
@@ -63,7 +67,9 @@ public class ServerUploadAction extends AnAction {
                             .notify(e.getProject());
                     });
                 } catch (Exception ex) {
-                    final String errorMessage = ex.getMessage();
+                    final String errorMessage = String.format("""
+                            文件路径: %s
+                            失败原因: %s""", file.getPath(), ex.getMessage());
                     ApplicationManager.getApplication().invokeLater(() -> {
                         NotificationGroupManager.getInstance()
                             .getNotificationGroup("SyncClient Upload")
