@@ -3,23 +3,21 @@ package com.youguan.service;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.moandjiezana.toml.Toml;
 import com.youguan.config.ClientConfig;
 import com.youguan.config.ServerConfig;
 import okhttp3.*;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-import javax.net.ssl.*;
-import java.security.cert.X509Certificate;
-
-import okhttp3.OkHttpClient;
-import javax.net.ssl.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 public class HttpUploadService {
@@ -49,10 +47,10 @@ public class HttpUploadService {
         Path basePath = Paths.get(projectBasePath);
         Path filePath = Paths.get(file.getPath());
         String relativePath = basePath.relativize(filePath).toString();
-        
+
         String targetFilePath = Paths.get(targetRootDir, relativePath)
-                                   .toString()
-                                   .replace('\\', '/');
+                .toString()
+                .replace('\\', '/');
 
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -82,9 +80,9 @@ public class HttpUploadService {
             }
 
             return new UploadResult(
-                targetFilePath,
-                response.code(),
-                responseBody
+                    targetFilePath,
+                    response.code(),
+                    responseBody
             );
         }
     }
@@ -103,10 +101,10 @@ public class HttpUploadService {
         @Override
         public String toString() {
             return String.format("""
-                目标路径: %s
-                响应状态码: %d
-                响应内容: %s""",
-                targetPath, responseCode, responseBody);
+                            目标路径: %s
+                            响应状态码: %d
+                            响应内容: %s""",
+                    targetPath, responseCode, responseBody);
         }
     }
 }
@@ -116,26 +114,26 @@ class OkHttpClientUtils {
         try {
             // 创建信任所有证书的信任管理器
             final TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    }
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    }
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[]{};
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
                     }
-                }
             };
 
             // 安装信任管理器
             final SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-            
+
             // 创建 SSL socket 工厂
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
